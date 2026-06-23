@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Realme C71 — Bootloader Unlock & GSI Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #080b12;
+      --surface: #0f1420;
+      --card-bg: rgba(18, 25, 45, 0.75);
+      --card-border: rgba(129, 140, 248, 0.08);
+      --card-hover: rgba(129, 140, 248, 0.14);
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #818cf8;
+      --accent-glow: rgba(129, 140, 248, 0.25);
+      --accent2: #2dd4bf;
+      --green: #4ade80;
+      --green-bg: rgba(74, 222, 128, 0.1);
+      --red: #f87171;
+      --red-bg: rgba(248, 113, 113, 0.1);
+      --yellow: #fbbf24;
+      --yellow-bg: rgba(251, 191, 36, 0.1);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 20% 50%, rgba(129,140,248,0.03) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 20%, rgba(45,212,191,0.02) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+    header {
+      text-align: center;
+      padding: 60px 0 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 48px;
+    }
+    header .badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    header .badge-row span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 14px;
+      border-radius: 100px;
+      background: rgba(129, 140, 248, 0.08);
+      border: 1px solid rgba(129, 140, 248, 0.12);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    header h1 {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #f1f5f9 0%, #818cf8 50%, #2dd4bf 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+    header .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      margin-bottom: 28px;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+    .card:hover {
+      border-color: rgba(129, 140, 248, 0.16);
+    }
+    .step-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      margin-bottom: 28px;
+      transition: border-color var(--transition);
+    }
+    .step-card:hover {
+      border-color: rgba(129, 140, 248, 0.16);
+    }
+    .step-card .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    .step-card .step-number {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #818cf8, #6366f1);
+      color: #fff;
+    }
+    .step-card .step-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .step-card .step-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .step-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 18px 0 8px;
+      color: var(--accent);
+    }
+    .step-card p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .step-card ol, .step-card ul {
+      padding-left: 22px;
+      margin: 10px 0;
+    }
+    .step-card li {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      line-height: 1.6;
+    }
+    .step-card li strong { color: var(--text); }
+    .code-block {
+      position: relative;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-sm);
+      margin: 12px 0;
+      overflow: hidden;
+    }
+    .code-block .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: rgba(0,0,0,0.2);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .code-block .code-header span {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+    }
+    .code-block pre {
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: #e2e8f0;
+      margin: 0;
+    }
+    .code-block pre .ok { color: var(--green); }
+    .code-block pre .err { color: var(--red); }
+    .code-block pre .hl { color: var(--yellow); }
+    .code-block pre .dim { color: var(--text-muted); }
+    .warn-box {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 16px 20px;
+      border-radius: var(--radius-sm);
+      margin: 14px 0;
+    }
+    .warn-box.danger {
+      background: var(--red-bg);
+      border-left: 4px solid var(--red);
+    }
+    .warn-box.info {
+      background: rgba(129, 140, 248, 0.06);
+      border-left: 4px solid var(--accent);
+    }
+    .warn-box.success {
+      background: var(--green-bg);
+      border-left: 4px solid var(--green);
+    }
+    .warn-box.warning {
+      background: var(--yellow-bg);
+      border-left: 4px solid var(--yellow);
+    }
+    .warn-box .icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .warn-box .content { flex: 1; }
+    .warn-box .content p { font-size: 0.9rem; margin: 0; }
+    .warn-box.danger .content p { color: var(--red); }
+    .warn-box.info .content p { color: var(--accent); }
+    .warn-box.success .content p { color: var(--green); }
+    .warn-box.warning .content p { color: var(--yellow); }
+    .warn-box .content strong { color: inherit; }
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .tag.green { background: var(--green-bg); color: var(--green); }
+    .tag.red { background: var(--red-bg); color: var(--red); }
+    .tag.yellow { background: var(--yellow-bg); color: var(--yellow); }
+    .tag.blue { background: rgba(129, 140, 248, 0.12); color: var(--accent); }
+    .tag.purple { background: rgba(45, 212, 191, 0.12); color: #2dd4bf; }
+    .tag.orange { background: rgba(251, 146, 60, 0.12); color: #fb923c; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1100px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px) { .grid-3 { grid-template-columns: 1fr; } }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 1100px) { .grid-4 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .grid-4 { grid-template-columns: 1fr; } }
+    .full-width { grid-column: 1 / -1; }
+    .slot-display {
+      display: flex;
+      gap: 24px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+    .slot-card {
+      flex: 1;
+      min-width: 200px;
+      padding: 24px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      border: 2px solid;
+    }
+    .slot-card.pass {
+      border-color: rgba(74, 222, 128, 0.3);
+      background: rgba(74, 222, 128, 0.04);
+    }
+    .slot-card.fail {
+      border-color: rgba(248, 113, 113, 0.3);
+      background: rgba(248, 113, 113, 0.04);
+    }
+    .slot-card .s-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .slot-card .s-value {
+      font-size: 2rem;
+      font-weight: 900;
+      margin-top: 6px;
+    }
+    .slot-card.pass .s-value { color: var(--green); }
+    .slot-card.fail .s-value { color: var(--red); }
+    .slot-card .s-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin: 12px 0;
+    }
+    table thead th {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    table tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text-secondary);
+    }
+    table tbody tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+    table a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    table a:hover { text-decoration: underline; }
+    .trouble-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 800px) { .trouble-grid { grid-template-columns: 1fr; } }
+    .trouble-item {
+      background: rgba(0,0,0,0.15);
+      border-radius: var(--radius-sm);
+      padding: 20px 24px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .trouble-item h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .trouble-item .cause {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .trouble-item ul { padding-left: 18px; list-style: none; }
+    .trouble-item ul li {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-bottom: 3px;
+      position: relative;
+      padding-left: 4px;
+    }
+    .outcome {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      background: rgba(129, 140, 248, 0.04);
+      border: 1px solid rgba(129, 140, 248, 0.08);
+      margin: 12px 0;
+    }
+    .outcome .icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .outcome .content p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    .outcome .content strong { color: var(--accent); }
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      margin: 24px 0;
+    }
+    h2.section-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2.section-title .icon { font-size: 1.3rem; }
+    .rank-1 { color: var(--green); font-weight: 700; }
+    .rank-2 { color: var(--accent); font-weight: 700; }
+    .rank-3 { color: var(--yellow); font-weight: 700; }
+    .rank-4 { color: var(--red); font-weight: 700; }
+    .nav-links {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .nav-links a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .nav-links a:hover { text-decoration: underline; }
+    .nav-links .sep { color: var(--text-muted); margin: 0 12px; }
+    @media (max-width: 768px) {
+      .container { padding: 0 16px; }
+      header h1 { font-size: 2rem; }
+      .card, .step-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ==================== NAV ==================== -->
+  <div class="nav-links" style="padding-top:32px;">
+    <a href="index.html">← Realme GT Neo 3 Guide</a>
+    <span class="sep">|</span>
+    <strong style="color:var(--text-secondary)">Realme C71 Guide</strong>
+  </div>
+
+  <!-- ==================== HEADER ==================== -->
+  <header>
+    <div class="badge-row">
+      <span>📱 Realme C71</span>
+      <span>🔖 RMX5303</span>
+      <span>🔹 Unisoc T7250</span>
+      <span>💠 UMS9230</span>
+      <span>🅰️ Android 15</span>
+    </div>
+    <h1>Bootloader Unlock &amp; GSI Guide</h1>
+    <p class="subtitle">CVE-2022-38694 BootROM Exploit &middot; GSI Flashing &middot; Known Bugs &amp; Fixes</p>
+  </header>
+
+  <!-- ==================== CRITICAL WARNINGS ==================== -->
+  <div class="grid-2">
+    <div class="card">
+      <h2 class="section-title"><span class="icon">⚠️</span> Critical — Read First</h2>
+      <div class="warn-box danger">
+        <span class="icon">🔴</span>
+        <div class="content"><p><strong>Unlocking wipes ALL data.</strong> Back up everything before starting.</p></div>
+      </div>
+      <div class="warn-box danger">
+        <span class="icon">🚫</span>
+        <div class="content"><p><strong>Using the wrong FDL files will hardbrick your device.</strong> You MUST confirm eMMC vs UFS before using the exploit.</p></div>
+      </div>
+      <div class="warn-box danger">
+        <span class="icon">🚫</span>
+        <div class="content"><p><strong>No TWRP exists</strong> for Realme C71. Custom ROMs are only available via GSI (Generic System Image).</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 class="section-title"><span class="icon">ℹ️</span> Key Facts</h2>
+      <div class="warn-box warning">
+        <span class="icon">🧠</span>
+        <div class="content"><p><strong>Chipset:</strong> Unisoc T7250 (T615 rebrand, UMS9230) — 12nm, 8-core A75+A55, Mali-G57 MP1</p></div>
+      </div>
+      <div class="warn-box warning">
+        <span class="icon">📱</span>
+        <div class="content"><p><strong>Display:</strong> 720×1604, 120Hz IPS LCD — some GSIs may lose 120Hz</p></div>
+      </div>
+      <div class="warn-box warning">
+        <span class="icon">💾</span>
+        <div class="content"><p><strong>Storage:</strong> Can be eMMC 5.1 <em>or</em> UFS 2.2 — <strong>check before unlocking</strong></p></div>
+      </div>
+      <div class="warn-box warning">
+        <span class="icon">🔒</span>
+        <div class="content"><p><strong>Bootloader unlock:</strong> CVE-2022-38694 Unisoc BootROM exploit (only option if DeepTest servers are dead)</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== HOW THE EXPLOIT WORKS ==================== -->
+  <div class="card">
+    <h2 class="section-title"><span class="icon">⚙️</span> How CVE-2022-38694 Works</h2>
+    <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:16px;">The exploit targets a vulnerability in the Unisoc BootROM that allows flashing a modified bootloader at a hardware level:</p>
+    <div class="grid-4">
+      <div style="background:rgba(129,140,248,0.04);border:1px solid rgba(129,140,248,0.08);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:6px;">🔌</div>
+        <div style="font-weight:600;font-size:0.9rem;">1. EDL Mode</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Phone enters Emergency Download mode</div>
+      </div>
+      <div style="background:rgba(129,140,248,0.04);border:1px solid rgba(129,140,248,0.08);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:6px;">💾</div>
+        <div style="font-weight:600;font-size:0.9rem;">2. BootROM Exploit</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">CVE-2022-38694 bypasses signature checks</div>
+      </div>
+      <div style="background:rgba(129,140,248,0.04);border:1px solid rgba(129,140,248,0.08);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:6px;">🔓</div>
+        <div style="font-weight:600;font-size:0.9rem;">3. Unlock Bootloader</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Lock bit is cleared in the boot partition</div>
+      </div>
+      <div style="background:rgba(129,140,248,0.04);border:1px solid rgba(129,140,248,0.08);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:6px;">✅</div>
+        <div style="font-weight:600;font-size:0.9rem;">4. GSI Ready</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Unlocked bootloader allows flashing GSIs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 1: CHECK STORAGE TYPE ==================== -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">1</div>
+      <div>
+        <div class="step-title">Check Storage Type — eMMC or UFS?</div>
+        <div class="step-subtitle">⚠️ CRITICAL — Using the wrong exploit files bricks the device</div>
+      </div>
+    </div>
+    <div class="warn-box danger">
+      <span class="icon">⚠️</span>
+      <div class="content"><p><strong>The CVE-2022-38694 tool has separate files for eMMC and UFS.</strong> Using eMMC files on a UFS device (or vice versa) causes a permanent hardbrick. You MUST confirm your storage type before proceeding.</p></div>
+    </div>
+    <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:10px;">Run this command on your phone (via ADB or terminal emulator):</p>
+    <div class="code-block">
+      <div class="code-header"><span>ADB / Terminal</span></div>
+      <pre>lsblk</pre>
+    </div>
+    <div class="grid-2" style="margin:16px 0;">
+      <div class="slot-card pass">
+        <div class="s-label">If you see</div>
+        <div class="s-value" style="font-size:1.4rem;">mmcblk*</div>
+        <div class="s-desc">✅ eMMC — use <strong>ums9230_universal_emmc</strong></div>
+      </div>
+      <div class="slot-card fail">
+        <div class="s-label">If you see</div>
+        <div class="s-value" style="font-size:1.4rem;">sda / sdb</div>
+        <div class="s-desc">⛔ UFS — use <strong>ums9230_universal_ufs</strong></div>
+      </div>
+    </div>
+    <div class="warn-box warning">
+      <span class="icon">💡</span>
+      <div class="content"><p>If you can't run ADB now (phone is locked), check your stock ROM's scatter file or search online for "RMX5303 emmc" or "RMX5303 ufs". The C71 is <strong>not confirmed</strong> in any public source — you must verify on your actual device.</p></div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 2: DOWNLOAD TOOLS ==================== -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">2</div>
+      <div>
+        <div class="step-title">Download Required Tools</div>
+        <div class="step-subtitle">Everything you need on your PC</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Item</th><th>Source</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>CVE-2022-38694 Tool v1.72</td><td><a href="https://github.com/TomKing062/CVE-2022-38694_unlock_bootloader/releases">GitHub Releases</a></td><td>BootROM exploit for Unisoc devices</td></tr>
+        <tr><td>SPD UpgradeDownload Tool</td><td>Search "SPD UpgradeDownload Tool v1.2012"</td><td>Flash stock firmware (brick recovery)</td></tr>
+        <tr><td>Stock Firmware (RMX5303)</td><td><a href="https://repairmymobile.co/flash/realme-c71-rmx5303-flash-file/">repairmymobile.co</a></td><td>Stock ROM backup (paid download)</td></tr>
+        <tr><td>platform-tools (ADB + Fastboot)</td><td><a href="https://dl.google.com/android/repository/platform-tools-latest-windows.zip">Google</a></td><td>ADB and fastboot commands</td></tr>
+        <tr><td>mikasagsifixed Magisk Module</td><td><a href="https://github.com/notedphy/mikasagsifixed">GitHub</a></td><td>GSI bug fixes (brightness, etc.)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ==================== STEP 3: UNLOCK BOOTLOADER ==================== -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">3</div>
+      <div>
+        <div class="step-title">Unlock Bootloader via CVE-2022-38694</div>
+        <div class="step-subtitle">The actual exploit procedure</div>
+      </div>
+    </div>
+    <h3>Prerequisites</h3>
+    <ol>
+      <li>A Windows PC (or Linux with udev rules)</li>
+      <li>USB data cable (original preferred)</li>
+      <li>Phone battery &gt;60% charged</li>
+      <li>Confirmed storage type (eMMC or UFS) from Step 1</li>
+    </ol>
+    <div class="divider"></div>
+    <h3>Unlock Steps</h3>
+    <ol>
+      <li>Download and extract <strong>CVE-2022-38694_Unlock_v1.72.zip</strong></li>
+      <li>Navigate to the folder matching your storage type:
+        <ul>
+          <li><strong>eMMC:</strong> <code>ums9230_universal_emmc/</code></li>
+          <li><strong>UFS:</strong> <code>ums9230_universal_ufs/</code></li>
+        </ul>
+      </li>
+      <li><strong>Power OFF</strong> the phone completely</li>
+      <li>Run the unlock batch script as <strong>Administrator</strong></li>
+      <li>Hold <strong>Vol Up + Vol Down</strong> on the phone and connect the USB cable</li>
+      <li>The tool will detect the device in EDL mode and execute the exploit</li>
+      <li>Wait for the "Unlock successful" message</li>
+      <li>Disconnect and reboot the phone</li>
+    </ol>
+    <div class="warn-box danger">
+      <span class="icon">⚠️</span>
+      <div class="content"><p><strong>If the script says "ERROR: FDL mismatch" or similar, DO NOT continue.</strong> You're using the wrong files. Disconnect immediately and re-check your storage type.</p></div>
+    </div>
+    <div class="warn-box info">
+      <span class="icon">💡</span>
+      <div class="content"><p>Refer to the README in the tool for OS-specific instructions. Linux users need to set up udev rules for USB access.</p></div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 4: VERIFY UNLOCK ==================== -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">4</div>
+      <div>
+        <div class="step-title">Verify Bootloader Unlock</div>
+        <div class="step-subtitle">Confirm it worked before proceeding</div>
+      </div>
+    </div>
+    <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:10px;">Boot into fastboot mode (Power + Vol Down) and run:</p>
+    <div class="code-block">
+      <div class="code-header"><span>Fastboot Verify</span></div>
+      <pre>fastboot getvar unlocked</pre>
+    </div>
+    <p style="font-size:0.95rem;color:var(--text-secondary);margin:8px 0;">Expected output:</p>
+    <div class="code-block">
+      <div class="code-header"><span>✅ Success</span></div>
+      <pre><span class="ok">unlocked: yes</span></pre>
+    </div>
+    <div class="warn-box danger">
+      <span class="icon">🔴</span>
+      <div class="content"><p>If you see <code>unlocked: no</code> or an error, the exploit may not have worked. Try again from Step 3, or check the Realme C71 Telegram community for help.</p></div>
+    </div>
+  </div>
+
+  <!-- ==================== GSI FLASHING GUIDE ==================== -->
+  <div class="card">
+    <h2 class="section-title"><span class="icon">🤖</span> Flashing a GSI</h2>
+    <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:12px;">Realme C71 has no device-specific custom ROMs. Your only option is <strong>GSI (Generic System Image)</strong> — a system image that works across Treble-compatible devices.</p>
+
+    <div class="grid-2">
+      <div style="background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);padding:20px 22px;">
+        <h3 style="color:var(--accent);margin-bottom:8px;">Recommended: LineageOS 22.2 GSI</h3>
+        <p style="font-size:0.88rem;color:var(--text-muted);">Android 15 QPR2, most mature GSI with best Unisoc support.</p>
+        <div class="code-block" style="margin:8px 0;">
+          <div class="code-header"><span>Download</span></div>
+          <pre>github.com/MisterZtr/LineageOS_gsi
+→ LineageOS-22.2-<date>-GAPPS-EXT4.7z</pre>
+        </div>
+        <div class="tag green" style="margin-top:4px;">Least buggy choice</div>
+      </div>
+      <div style="background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);padding:20px 22px;">
+        <h3 style="color:var(--accent);margin-bottom:8px;">Latest: LineageOS 23.2 GSI</h3>
+        <p style="font-size:0.88rem;color:var(--text-muted);">Android 16 QPR2, newest but fewer Unisoc-specific patches.</p>
+        <div class="code-block" style="margin:8px 0;">
+          <div class="code-header"><span>Download</span></div>
+          <pre>github.com/MisterZtr/LineageOS_gsi
+→ LineageOS-23.2-<date>-VANILLA-EXT4.7z</pre>
+        </div>
+        <div class="tag blue" style="margin-top:4px;">Newest, more bugs likely</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:20px;color:var(--accent);">Fastboot Flash Commands</h3>
+    <div class="code-block">
+      <div class="code-header"><span>Fastboot GSI Flash</span></div>
+      <pre># Boot to fastboot
+adb reboot bootloader
+
+# Wipe system
+fastboot erase system
+
+# Flash GSI (adjust filename)
+fastboot flash system lineage-22.2-*-EXT4.img
+
+# Wipe data (factory reset)
+fastboot -w
+
+# Reboot
+fastboot reboot</pre>
+    </div>
+    <div class="warn-box warning">
+      <span class="icon">💡</span>
+      <div class="content"><p><strong>Important:</strong> Always use the <strong>EXT4</strong> variant first — it's fully read-write and most compatible. Only try EROFS if you're sure your kernel supports it (kernel 5.4+).</p></div>
+    </div>
+  </div>
+
+  <!-- ==================== GSI BUG RANKING ==================== -->
+  <div class="card">
+    <h2 class="section-title"><span class="icon">📊</span> GSI Bug Ranking — Unisoc UMS9230</h2>
+    <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:16px;">Community-reported stability ranking for GSIs on Unisoc T7250/UMS9230 devices. <strong>#1 = least buggy.</strong></p>
+
+    <table>
+      <thead><tr><th>Rank</th><th>GSI</th><th>Android</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="rank-1">#1 (Best)</span></td>
+          <td><strong>LineageOS 22.2</strong></td>
+          <td>15 QPR2</td>
+          <td>Most mature, best Unisoc support, most patches accumulated. Recommended starting point.</td>
+        </tr>
+        <tr>
+          <td><span class="rank-2">#2</span></td>
+          <td><strong>LineageOS 23.2</strong></td>
+          <td>16 QPR2</td>
+          <td>Latest but newer — fewer Unisoc-specific fixes. RestlessOS patchset helps.</td>
+        </tr>
+        <tr>
+          <td><span class="rank-3">#3</span></td>
+          <td><strong>crDroid GSI</strong></td>
+          <td>14 / 15</td>
+          <td>Good but RIL issues reported on Unisoc. Some users report network drops.</td>
+        </tr>
+        <tr>
+          <td><span class="rank-3">#4</span></td>
+          <td><strong>PixelExperience / PixelOS GSI</strong></td>
+          <td>14 / 15</td>
+          <td>Camera and brightness bugs common. mikasagsifixed helps brightness.</td>
+        </tr>
+        <tr>
+          <td><span class="rank-4">#5</span></td>
+          <td><strong>ArrowOS GSI</strong></td>
+          <td>13 / 14</td>
+          <td>Hit-or-miss on Unisoc. Some hardware features may not work.</td>
+        </tr>
+        <tr>
+          <td><span class="rank-4">#6</span></td>
+          <td><strong>HentaiOS / DerpFest</strong></td>
+          <td>14 / 15</td>
+          <td>Experimental builds, more bugs. Not recommended for daily driver.</td>
+        </tr>
+        <tr>
+          <td><span class="rank-4">#7</span></td>
+          <td><strong>AOSP GSIs (phh-treble)</strong></td>
+          <td>14 / 15 / 16</td>
+          <td>Most barebones, requires most manual fixes. Good base for customization.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <h3 style="color:var(--accent);">Known Bugs by Category</h3>
+    <div class="grid-2" style="margin-top:12px;">
+      <div style="background:rgba(248,113,113,0.04);border:1px solid rgba(248,113,113,0.08);border-radius:var(--radius-sm);padding:16px 20px;">
+        <h4 style="font-size:0.9rem;color:var(--red);margin-bottom:4px;">🔴 High Impact</h4>
+        <ul style="font-size:0.85rem;padding-left:16px;margin:0;">
+          <li><strong>RIL (no mobile network)</strong> — Try: <code>settings put global restricted_networking_mode 0</code> or flash stock vendor</li>
+          <li><strong>Camera not connecting</strong> — Set <code>persist.camera.HAL3.enabled=1</code> in build.prop + permissive SELinux</li>
+          <li><strong>VoLTE / ViWiFi</strong> — Almost never works on GSIs. Requires OEM IMS blobs.</li>
+        </ul>
+      </div>
+      <div style="background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.08);border-radius:var(--radius-sm);padding:16px 20px;">
+        <h4 style="font-size:0.9rem;color:var(--yellow);margin-bottom:4px;">🟡 Medium Impact</h4>
+        <ul style="font-size:0.85rem;padding-left:16px;margin:0;">
+          <li><strong>Brightness slider broken</strong> — Fixed by <strong>mikasagsifixed</strong> Magisk module</li>
+          <li><strong>WiFi not working</strong> — Try phh-treble settings to set WiFi interface manually</li>
+          <li><strong>120Hz refresh rate loss</strong> — May default to 60Hz; check phh-treble settings</li>
+          <li><strong>Fingerprint sensor</strong> — Unisoc FP HAL is vendor-specific; usually doesn't work</li>
+        </ul>
+      </div>
+      <div style="background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.08);border-radius:var(--radius-sm);padding:16px 20px;">
+        <h4 style="font-size:0.9rem;color:var(--accent);margin-bottom:4px;">🟢 Low Impact</h4>
+        <ul style="font-size:0.85rem;padding-left:16px;margin:0;">
+          <li><strong>DT2W (double tap to wake)</strong> — Rarely works; vendor-specific driver</li>
+          <li><strong>BT audio codecs</strong> — Usually works but may have codec issues with LDAC/aptX</li>
+          <li><strong>SEAndroid</strong> — Must be permissive for many features (breaks SafetyNet)</li>
+        </ul>
+      </div>
+      <div style="background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.08);border-radius:var(--radius-sm);padding:16px 20px;">
+        <h4 style="font-size:0.9rem;color:#2dd4bf;margin-bottom:4px;">🔵 Fixable</h4>
+        <ul style="font-size:0.85rem;padding-left:16px;margin:0;">
+          <li><strong>mikasagsifixed</strong> module fixes brightness slider, device spoofing, SELinux rules</li>
+          <li><strong>phh-treble settings</strong> app (included in many GSIs) has toggles for WiFi, Bluetooth, display</li>
+          <li><strong>GApps vs Vanilla</strong> — VANILLA variants tend to have fewer compatibility issues</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MIKASAGSIFIXED MODULE ==================== -->
+  <div class="card">
+    <h2 class="section-title"><span class="icon">🛡️</span> mikasagsifixed — GSI Bug Fix Module</h2>
+    <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:12px;">A Magisk module designed for Unisoc T616/T7250 devices to fix common GSI issues. Install <strong>after</strong> booting into a GSI for the first time.</p>
+    <div class="grid-2">
+      <div>
+        <h3 style="color:var(--green);">✅ What It Fixes</h3>
+        <ul style="font-size:0.9rem;">
+          <li><strong>Brightness slider</strong> — Sets max backlight value properly</li>
+          <li><strong>Device spoofing</strong> — Sets correct system properties for GSI compatibility</li>
+          <li><strong>SELinux rules</strong> — Permissive policies for system access</li>
+          <li><strong>Build fingerprint</strong> — Updated Android 13 fingerprint for better app compatibility</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="color:var(--red);">❌ What It Does NOT Fix</h3>
+        <ul style="font-size:0.9rem;">
+          <li>RIL (mobile network / data)</li>
+          <li>WiFi / Bluetooth hardware issues</li>
+          <li>Camera HAL problems</li>
+          <li>Fingerprint sensor</li>
+          <li>DT2W / VoLTE / ViWiFi</li>
+          <li>120Hz refresh rate</li>
+        </ul>
+      </div>
+    </div>
+    <h3 style="margin-top:16px;color:var(--accent);">Installation</h3>
+    <ol style="font-size:0.9rem;">
+      <li>Download the latest <code>mikasagsifixed.zip</code> from <a href="https://github.com/notedphy/mikasagsifixed" style="color:var(--accent)">GitHub</a></li>
+      <li>Boot into your GSI and complete initial setup</li>
+      <li>Transfer the ZIP to your phone</li>
+      <li>Open <strong>Magisk</strong> app → <strong>Modules</strong> → <strong>Install from storage</strong></li>
+      <li>Select the ZIP → Reboot</li>
+    </ol>
+  </div>
+
+  <!-- ==================== STOCK FIRMWARE & BRICK RECOVERY ==================== -->
+  <div class="grid-2">
+    <div class="card">
+      <h2 class="section-title"><span class="icon">📦</span> Stock Firmware</h2>
+      <table>
+        <thead><tr><th>Version</th><th>Source</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>RMX5303_15_C.10</td><td><a href="https://repairmymobile.co/flash/realme-c71-rmx5303-flash-file/">repairmymobile.co</a></td><td>Paid download (~$10), latest known build 2025-06-06</td></tr>
+          <tr><td>Older builds</td><td>Search "RMX5303 firmware"</td><td>Check XDA / 4PDA forums for free links</td></tr>
+        </tbody>
+      </table>
+      <div class="warn-box info">
+        <span class="icon">💡</span>
+        <div class="content"><p>Flashed via <strong>SPD UpgradeDownload Tool</strong> (Unisoc flashing tool). Stock firmware comes in <code>.pac</code> format.</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 class="section-title"><span class="icon">🆘</span> Hard Brick Recovery</h2>
+      <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:10px;">If your C71 is bricked (no boot, no recovery):</p>
+      <ol style="font-size:0.9rem;padding-left:18px;">
+        <li style="margin-bottom:6px;">Install <strong>SPD UpgradeDownload Tool</strong> v1.2012+ on Windows</li>
+        <li style="margin-bottom:6px;">Find the <strong>EDL test points</strong> on the motherboard (search "Realme C71 EDL test point" on GSM Helpful)</li>
+        <li style="margin-bottom:6px;">Short the test points and connect USB — device enters EDL mode</li>
+        <li style="margin-bottom:6px;">Flash the stock <code>.pac</code> firmware via SPD tool</li>
+        <li style="margin-bottom:0;">If EDL mode isn't detected, you may need authorized Realme service center</li>
+      </ol>
+      <div class="warn-box danger">
+        <span class="icon">⚠️</span>
+        <div class="content"><p>Brick recovery requires disassembling the phone to access EDL test points. If you're not comfortable with hardware, seek professional help.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TROUBLESHOOTING ==================== -->
+  <div class="card full-width">
+    <h2 class="section-title"><span class="icon">🔧</span> Troubleshooting</h2>
+    <div class="trouble-grid">
+      <div class="trouble-item">
+        <h3>Exploit script shows "FDL mismatch" or "ERROR"</h3>
+        <div class="cause">Wrong storage type selected (eMMC vs UFS mismatch)</div>
+        <ul>
+          <li>✅ Disconnect immediately — do NOT continue</li>
+          <li>✅ Re-run <code>lsblk</code> on your phone to confirm storage type</li>
+          <li>✅ Download and use the correct folder (<code>ums9230_universal_emmc</code> or <code>ums9230_universal_ufs</code>)</li>
+          <li>✅ If unsure, check the scatter file from your stock ROM</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>Phone not detected in EDL mode</h3>
+        <div class="cause">Missing USB drivers / wrong button combo / bad cable</div>
+        <ul>
+          <li>✅ Install <strong>Unisoc USB drivers</strong> on Windows (search "Unisoc SPRD driver")</li>
+          <li>✅ Ensure phone is fully powered OFF (hold Power 10s)</li>
+          <li>✅ Connect USB while holding <strong>Vol Up + Vol Down</strong></li>
+          <li>✅ Try a different USB cable and USB 2.0 port</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>GSI boots but no mobile network (RIL dead)</h3>
+        <div class="cause">Vendor RIL blobs incompatible with GSI</div>
+        <ul>
+          <li>✅ Try: <code>adb shell settings put global restricted_networking_mode 0</code></li>
+          <li>✅ In phh-treble settings: set "RIL implementation" to "AOSP"</li>
+          <li>✅ Flash stock vendor partition back: <code>fastboot flash vendor vendor.img</code> (extract from stock ROM)</li>
+          <li>✅ If nothing works, RIL is likely broken on this GSI — try another</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>Brightness slider doesn't work</h3>
+        <div class="cause">GSI doesn't have proper backlight driver integration</div>
+        <ul>
+          <li>✅ Install <strong>mikasagsifixed</strong> Magisk module (most reliable fix)</li>
+          <li>✅ In phh-treble settings → "Force brightness" → set max value</li>
+          <li>✅ Or add <code>persist.sys.phh.max_brightness=255</code> to build.prop</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>Camera shows black screen or won't open</h3>
+        <div class="cause">HAL3 not enabled / SELinux blocking camera HAL</div>
+        <ul>
+          <li>✅ Add to build.prop: <code>persist.camera.HAL3.enabled=1</code></li>
+          <li>✅ Set SELinux to permissive: <code>setenforce 0</code> (or via Magisk module)</li>
+          <li>✅ Try OpenCamera app instead of stock camera</li>
+          <li>✅ If still broken, camera may not work on any GSI for this device</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>WiFi won't turn on / can't find networks</h3>
+        <div class="cause">WiFi HAL interface mismatch</div>
+        <ul>
+          <li>✅ In phh-treble settings: set "WiFi interface" to <code>wlan0</code></li>
+          <li>✅ Try flashing stock vendor partition</li>
+          <li>✅ Check if MAC address shows as 00:00:00:00:00:00 — if so, WiFi HAL is broken</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>120Hz display stuck at 60Hz</h3>
+        <div class="cause">GSI defaults to 60Hz refresh rate</div>
+        <ul>
+          <li>✅ In phh-treble settings → "Force FPS" → set 120 (or "Highest")</li>
+          <li>✅ Or use ADB: <code>settings put global peak_refresh_rate 120</code></li>
+          <li>✅ May cause instability — test before relying on it</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>Bootloop after flashing GSI</h3>
+        <div class="cause">Wrong GSI variant / dirty flash / incompatible partition</div>
+        <ul>
+          <li>✅ Boot to recovery → Format data → Reboot</li>
+          <li>✅ If still bootlooping: <code>fastboot erase system</code> → reflash with <strong>EXT4</strong> variant</li>
+          <li>✅ Make sure you selected A-only or A/B variant correctly (C71 uses A/B slots)</li>
+          <li>✅ Last resort: restore stock firmware via SPD tool</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== RESOURCES ==================== -->
+  <div class="card full-width" style="margin-bottom:48px;">
+    <h2 class="section-title"><span class="icon">📎</span> Resources</h2>
+    <div class="grid-3">
+      <div>
+        <h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:8px;">Exploit &amp; Unlock</h3>
+        <table>
+          <tbody>
+            <tr><td><a href="https://github.com/TomKing062/CVE-2022-38694_unlock_bootloader">CVE-2022-38694 Tool</a></td></tr>
+            <tr><td><a href="https://github.com/TomKing062/CVE-2022-38694_unlock_bootloader/blob/main/SupportList.md">Supported Devices List</a></td></tr>
+            <tr><td><a href="https://github.com/bkerler/mtkclient">MTKClient (MTK only)</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:8px;">GSI &amp; Custom ROMs</h3>
+        <table>
+          <tbody>
+            <tr><td><a href="https://github.com/MisterZtr/LineageOS_gsi">LineageOS GSI (MisterZtr)</a></td></tr>
+            <tr><td><a href="https://github.com/notedphy/mikasagsifixed">mikasagsifixed Module</a></td></tr>
+            <tr><td><a href="https://github.com/phhusson/treble_experimentations">phh-treble (AOSP GSI)</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:8px;">Stock &amp; Support</h3>
+        <table>
+          <tbody>
+            <tr><td><a href="https://repairmymobile.co/flash/realme-c71-rmx5303-flash-file/">Stock Firmware (Paid)</a></td></tr>
+            <tr><td><a href="https://gsmhelpful.com/">GSM Helpful (EDL guides)</a></td></tr>
+            <tr><td><a href="https://codeberg.org/ums9230-mainline">UMS9230 Mainline Linux</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">
+      <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.8;">
+        <strong style="color:var(--text-secondary);">Unofficial guide — use at your own risk.</strong><br/>
+        Research conducted with <strong>Camofox Browser</strong>. Sources: TomKing062 GitHub, MisterZtr GSI, notedphy/mikasagsifixed, XDA, 4PDA, GSM Helpful.<br/>
+        Device: Realme C71 (RMX5303) &middot; SoC: Unisoc T7250 (UMS9230)
+      </p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
