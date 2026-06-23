@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Realme GT Neo 3 — Unlock Bootloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #080b12;
+      --surface: #0f1420;
+      --card-bg: rgba(18, 25, 45, 0.75);
+      --card-border: rgba(56, 189, 248, 0.08);
+      --card-hover: rgba(56, 189, 248, 0.14);
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --accent2: #a78bfa;
+      --green: #4ade80;
+      --green-bg: rgba(74, 222, 128, 0.1);
+      --red: #f87171;
+      --red-bg: rgba(248, 113, 113, 0.1);
+      --yellow: #fbbf24;
+      --yellow-bg: rgba(251, 191, 36, 0.1);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Background effects */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 20% 50%, rgba(56,189,248,0.03) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 20%, rgba(167,139,250,0.02) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 60px 0 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 48px;
+    }
+    header .badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    header .badge-row span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 14px;
+      border-radius: 100px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.12);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    header h1 {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #f1f5f9 0%, #38bdf8 50%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+    header .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+    header .dl-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+    .dl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+    }
+    .dl-btn.primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
+    }
+    .dl-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(56, 189, 248, 0.4);
+    }
+    .dl-btn.secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .dl-btn.secondary:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    /* Progress indicator */
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0;
+      margin-bottom: 48px;
+      padding: 0 4px;
+    }
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      position: relative;
+    }
+    .progress-step::after {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: calc(50% + 22px);
+      right: calc(-50% + 22px);
+      height: 2px;
+      background: rgba(255,255,255,0.06);
+    }
+    .progress-step:last-child::after { display: none; }
+    .progress-step .circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+      transition: var(--transition);
+    }
+    .progress-step.active .circle {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(56,189,248,0.3);
+    }
+    .progress-step .label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .progress-step.active .label { color: var(--accent); }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      margin-bottom: 28px;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+    .card:hover {
+      border-color: rgba(56, 189, 248, 0.16);
+    }
+
+    .step-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      margin-bottom: 28px;
+      transition: border-color var(--transition);
+    }
+    .step-card:hover {
+      border-color: rgba(56, 189, 248, 0.16);
+    }
+    .step-card .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    .step-card .step-number {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #fff;
+    }
+    .step-card .step-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .step-card .step-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .step-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 18px 0 8px;
+      color: var(--accent);
+    }
+    .step-card p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .step-card ol, .step-card ul {
+      padding-left: 22px;
+      margin: 10px 0;
+    }
+    .step-card li {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      line-height: 1.6;
+    }
+    .step-card li strong { color: var(--text); }
+
+    /* Code blocks */
+    .code-block {
+      position: relative;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-sm);
+      margin: 12px 0;
+      overflow: hidden;
+    }
+    .code-block .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: rgba(0,0,0,0.2);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .code-block .code-header span {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+    }
+    .copy-btn {
+      background: rgba(255,255,255,0.06);
+      border: none;
+      color: var(--text-muted);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+    }
+    .copy-btn.copied {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+    .code-block pre {
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: #e2e8f0;
+      margin: 0;
+    }
+    .code-block pre .ok { color: var(--green); }
+    .code-block pre .err { color: var(--red); }
+    .code-block pre .hl { color: var(--yellow); }
+    .code-block pre .dim { color: var(--text-muted); }
+
+    .warn-box {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 16px 20px;
+      border-radius: var(--radius-sm);
+      margin: 14px 0;
+    }
+    .warn-box.danger {
+      background: var(--red-bg);
+      border-left: 4px solid var(--red);
+    }
+    .warn-box.info {
+      background: rgba(56, 189, 248, 0.06);
+      border-left: 4px solid var(--accent);
+    }
+    .warn-box.success {
+      background: var(--green-bg);
+      border-left: 4px solid var(--green);
+    }
+    .warn-box.warning {
+      background: var(--yellow-bg);
+      border-left: 4px solid var(--yellow);
+    }
+    .warn-box .icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .warn-box .content { flex: 1; }
+    .warn-box .content p { font-size: 0.9rem; margin: 0; }
+    .warn-box.danger .content p { color: var(--red); }
+    .warn-box.info .content p { color: var(--accent); }
+    .warn-box.success .content p { color: var(--green); }
+    .warn-box.warning .content p { color: var(--yellow); }
+    .warn-box .content strong { color: inherit; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .tag.green { background: var(--green-bg); color: var(--green); }
+    .tag.red { background: var(--red-bg); color: var(--red); }
+    .tag.yellow { background: var(--yellow-bg); color: var(--yellow); }
+    .tag.blue { background: rgba(56, 189, 248, 0.12); color: var(--accent); }
+    .tag.purple { background: rgba(167, 139, 250, 0.12); color: #a78bfa; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1100px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px) { .grid-3 { grid-template-columns: 1fr; } }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 1100px) { .grid-4 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .grid-4 { grid-template-columns: 1fr; } }
+
+    .full-width { grid-column: 1 / -1; }
+
+    /* Slot display */
+    .slot-display {
+      display: flex;
+      gap: 24px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+    .slot-card {
+      flex: 1;
+      min-width: 200px;
+      padding: 24px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      border: 2px solid;
+    }
+    .slot-card.pass {
+      border-color: rgba(74, 222, 128, 0.3);
+      background: rgba(74, 222, 128, 0.04);
+    }
+    .slot-card.fail {
+      border-color: rgba(248, 113, 113, 0.3);
+      background: rgba(248, 113, 113, 0.04);
+    }
+    .slot-card .s-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .slot-card .s-value {
+      font-size: 2rem;
+      font-weight: 900;
+      margin-top: 6px;
+    }
+    .slot-card.pass .s-value { color: var(--green); }
+    .slot-card.fail .s-value { color: var(--red); }
+    .slot-card .s-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin: 12px 0;
+    }
+    table thead th {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    table tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text-secondary);
+    }
+    table tbody tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+    table a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    table a:hover { text-decoration: underline; }
+
+    /* Troubleshooting */
+    .trouble-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 800px) { .trouble-grid { grid-template-columns: 1fr; } }
+    .trouble-item {
+      background: rgba(0,0,0,0.15);
+      border-radius: var(--radius-sm);
+      padding: 20px 24px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .trouble-item h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .trouble-item .cause {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .trouble-item ul { padding-left: 18px; list-style: none; }
+    .trouble-item ul li {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-bottom: 3px;
+      position: relative;
+      padding-left: 4px;
+    }
+
+    /* Expected outcome box */
+    .outcome {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      background: rgba(56, 189, 248, 0.04);
+      border: 1px solid rgba(56, 189, 248, 0.08);
+      margin: 12px 0;
+    }
+    .outcome .icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .outcome .content p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    .outcome .content strong { color: var(--accent); }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      margin: 24px 0;
+    }
+
+    h2.section-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2.section-title .icon { font-size: 1.3rem; }
+
+    @media (max-width: 768px) {
+      .container { padding: 0 16px; }
+      header h1 { font-size: 2rem; }
+      .card, .step-card { padding: 20px; }
+      .progress-bar { overflow-x: auto; gap: 4px; }
+      .progress-step .label { font-size: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ==================== HEADER ==================== -->
+  <header>
+    <div class="badge-row">
+      <span>📱 Realme GT Neo 3 80W</span>
+      <span>🔖 RMX3561</span>
+      <span>🔹 Indian / Global</span>
+      <span>💠 Dimensity 8100</span>
+      <span>🅰️ Codename: lisaa</span>
+    </div>
+    <h1>Bootloader Unlock Guide</h1>
+    <p class="subtitle">ENG Preloader Exploit &middot; Windows &middot; Free &middot; No DeepTest Required</p>
+    <div class="dl-group">
+      <a class="dl-btn primary" href="https://drive.usercontent.google.com/download?id=1EP65YrCYOGmExwM6Aut9JHEviEcWU5aZ" target="_blank">⬇ Download Unlock Tool (ZIP)</a>
+      <a class="dl-btn secondary" href="https://dl.google.com/android/repository/platform-tools-latest-windows.zip" target="_blank">⬇ Platform-Tools (ADB + Fastboot)</a>
+    </div>
+  </header>
+
+  <!-- ==================== PROGRESS ==================== -->
+  <div class="progress-bar">
+    <div class="progress-step active"><div class="circle">1</div><div class="label">Prepare</div></div>
+    <div class="progress-step"><div class="circle">2</div><div class="label">Slot Check</div></div>
+    <div class="progress-step"><div class="circle">3</div><div class="label">Drivers</div></div>
+    <div class="progress-step"><div class="circle">4</div><div class="label">Backup</div></div>
+    <div class="progress-step"><div class="circle">5</div><div class="label">Flash ENG</div></div>
+    <div class="progress-step"><div class="circle">6</div><div class="label">Format</div></div>
+    <div class="progress-step"><div class="circle">7</div><div class="label">OEM Unlock</div></div>
+    <div class="progress-step"><div class="circle">8</div><div class="label">Unlock</div></div>
+    <div class="progress-step"><div class="circle">9</div><div class="label">Verify</div></div>
+  </div>
+
+  <!-- ==================== WARNINGS ROW ==================== -->
+  <div class="grid-2">
+    <div class="card">
+      <h2 class="section-title"><span class="icon">⚠️</span> Critical — Read Before Starting</h2>
+      <div class="warn-box danger">
+        <span class="icon">🔴</span>
+        <div class="content"><p><strong>DeepTest servers are permanently blocked</strong> by Realme. The official method does NOT work. This unofficial exploit is your only option.</p></div>
+      </div>
+      <div class="warn-box danger">
+        <span class="icon">🚫</span>
+        <div class="content"><p><strong>NEVER flash <code>preloader_raw.img</code></strong> from any ROM ZIP. This instantly hardbricks the phone and requires Oplus Auth Tool (service center level) to fix.</p></div>
+      </div>
+      <div class="warn-box danger">
+        <span class="icon">🚫</span>
+        <div class="content"><p><strong>NEVER relock the bootloader</strong> unless you are on completely stock China firmware. Relocking on global firmware = brick.</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 class="section-title"><span class="icon">ℹ️</span> Important Notes</h2>
+      <div class="warn-box warning">
+        <span class="icon">🗑️</span>
+        <div class="content"><p><strong>Unlocking wipes ALL data.</strong> Back up your photos, files, and app data before starting.</p></div>
+      </div>
+      <div class="warn-box info">
+        <span class="icon">📱</span>
+        <div class="content"><p><strong>No TWRP or custom recovery</strong> exists for this device. All custom ROM flashing is done via fastboot.</p></div>
+      </div>
+      <div class="warn-box info">
+        <span class="icon">💡</span>
+        <div class="content"><p>This process only works on <strong>Realme UI 5 (Android 14)</strong> and requires active slot to be <strong>Slot A</strong>.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== HOW IT WORKS ==================== -->
+  <div class="card">
+    <h2 class="section-title"><span class="icon">⚙️</span> How the Exploit Works</h2>
+    <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:16px;">Realme blocks <code>fastboot flashing unlock</code> on the GT Neo 3. The Engineering Preloader exploit bypasses the lock at a hardware level:</p>
+    <div class="grid-4">
+      <div style="background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.08);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:6px;">🔌</div>
+        <div style="font-weight:600;font-size:0.9rem;">1. Preloader Mode</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Phone enters low-level MediaTek boot mode</div>
+      </div>
+      <div style="background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.08);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:6px;">💾</div>
+        <div style="font-weight:600;font-size:0.9rem;">2. ENG Preloader</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Modified engineering preloader removes locks</div>
+      </div>
+      <div style="background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.08);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:6px;">🔓</div>
+        <div style="font-weight:600;font-size:0.9rem;">3. Fastboot Access</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Bootloader unlock becomes available in fastboot</div>
+      </div>
+      <div style="background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.08);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:6px;">✅</div>
+        <div style="font-weight:600;font-size:0.9rem;">4. Unlock Command</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;"><code>fastboot flashing unlock</code> works normally</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PREREQUISITES + SLOT CHECK ==================== -->
+  <div class="grid-2">
+    <div class="card">
+      <h2 class="section-title"><span class="icon">📋</span> What You Need</h2>
+      <div class="grid-2" style="gap:10px;">
+        <div style="background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);padding:14px 16px;font-size:0.9rem;">
+          <strong>🖥️ Windows PC</strong><br/><span style="color:var(--text-muted);font-size:0.85rem;">Windows 10 or 11</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);padding:14px 16px;font-size:0.9rem;">
+          <strong>🔌 USB Cable</strong><br/><span style="color:var(--text-muted);font-size:0.85rem;">Original or sync/data cable</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);padding:14px 16px;font-size:0.9rem;">
+          <strong>🔋 Battery</strong><br/><span style="color:var(--text-muted);font-size:0.85rem;">Charge to 60% or more</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);padding:14px 16px;font-size:0.9rem;">
+          <strong>👑 Admin Access</strong><br/><span style="color:var(--text-muted);font-size:0.85rem;">PC admin rights for drivers</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);padding:14px 16px;font-size:0.9rem;">
+          <strong>⏱️ 20 Minutes</strong><br/><span style="color:var(--text-muted);font-size:0.85rem;">Uninterrupted time</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);padding:14px 16px;font-size:0.9rem;">
+          <strong>📦 DevCheck App</strong><br/><span style="color:var(--text-muted);font-size:0.85rem;">To verify active slot</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 class="section-title"><span class="icon">📱</span> Check Active Slot</h2>
+      <p style="font-size:0.9rem;color:var(--text-secondary);">Install <strong><a href="https://play.google.com/store/apps/details?id=flar2.devcheck" style="color:var(--accent)">DevCheck</a></strong> from Play Store → Open → <strong>System</strong> → <strong>Active Slot</strong></p>
+      <div class="slot-display">
+        <div class="slot-card pass">
+          <div class="s-label">You need</div>
+          <div class="s-value">SLOT A</div>
+          <div class="s-desc">✅ Safe to proceed</div>
+        </div>
+        <div class="slot-card fail">
+          <div class="s-label">Stop if you see</div>
+          <div class="s-value">SLOT B</div>
+          <div class="s-desc">⛔ Do NOT proceed</div>
+        </div>
+      </div>
+      <div class="warn-box warning">
+        <span class="icon">⚠️</span>
+        <div class="content"><p><strong>On Slot B?</strong> <a href="https://docs.google.com/document/d/1zzIi3n2aXDRSGKynhFYw5_uUAlCFZ5aVYCzIfk0Z-BU" style="color:var(--accent)">Download and local install the latest RUI 5 OTA</a> to switch back to Slot A. Running the exploit on Slot B can brick the device.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 1 ==================== -->
+  <div class="step-card" id="step1">
+    <div class="step-header">
+      <div class="step-number">1</div>
+      <div>
+        <div class="step-title">Disable Windows Defender</div>
+        <div class="step-subtitle">Required — unsigned drivers won't install otherwise</div>
+      </div>
+    </div>
+    <div class="warn-box danger">
+      <span class="icon">🔴</span>
+      <div class="content"><p><strong>This is mandatory.</strong> If you skip this, you'll get "Waiting for device" errors and the unlock will fail.</p></div>
+    </div>
+    <ol>
+      <li>Open <strong>Windows Security</strong> → <strong>Virus &amp; threat protection</strong></li>
+      <li>Click <strong>Manage settings</strong> under "Virus &amp; threat protection settings"</li>
+      <li>Toggle <strong>Real-time protection</strong> → <span class="tag red">OFF</span></li>
+      <li>Search for <strong>Core Isolation</strong> → <strong>Memory Integrity</strong> → Toggle <span class="tag red">OFF</span></li>
+      <li><strong>Restart your PC</strong> — important, drivers won't load without reboot</li>
+    </ol>
+    <div class="outcome">
+      <span class="icon">✅</span>
+      <div class="content"><p><strong>Expected:</strong> After reboot, Windows will show a shield with a red X in the system tray — this means Defender is disabled. You can re-enable it after the unlock is complete.</p></div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 2 ==================== -->
+  <div class="step-card" id="step2">
+    <div class="step-header">
+      <div class="step-number">2</div>
+      <div>
+        <div class="step-title">Extract the Tools</div>
+        <div class="step-subtitle">Set up the unlock toolkit on your PC</div>
+      </div>
+    </div>
+    <ol>
+      <li>Create a folder: <code>C:\gtneo3-unlock</code></li>
+      <li>Extract the <strong>Unlock Tool ZIP</strong> into this folder</li>
+      <li>Extract <strong>platform-tools ZIP</strong> into <code>C:\gtneo3-unlock\platform-tools</code></li>
+    </ol>
+    <p>Your folder structure should look exactly like this:</p>
+    <div class="code-block">
+      <div class="code-header"><span>📁 File Structure</span></div>
+      <pre>C:\gtneo3-unlock\
+├── PenumbraDrivers.exe      ← USB driver installer
+├── imei-backup.bat           ← IMEI/NV backup script
+├── unlockbt1.bat             ← Step 1: Flash ENG preloader
+├── unlockbt2.bat             ← Step 2: Unlock bootloader
+├── [other files]
+└── platform-tools\           ← Google's ADB + Fastboot
+    ├── adb.exe
+    ├── fastboot.exe
+    └── ...</pre>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 3 ==================== -->
+  <div class="step-card" id="step3">
+    <div class="step-header">
+      <div class="step-number">3</div>
+      <div>
+        <div class="step-title">Install USB Drivers (Penumbra)</div>
+        <div class="step-subtitle">Enables communication between PC and phone in preloader mode</div>
+      </div>
+    </div>
+    <ol>
+      <li>Navigate to <code>C:\gtneo3-unlock</code></li>
+      <li><strong>Right-click</strong> <code>PenumbraDrivers.exe</code> → <strong>Run as Administrator</strong></li>
+      <li>In the driver installer window, select <strong>libusb</strong> as the driver type</li>
+      <li>Click <strong>Install</strong> and wait for completion</li>
+      <li>If Windows shows a security warning, click <strong>"Install anyway"</strong></li>
+      <li><strong>Restart your PC</strong> — the drivers will not work without a reboot</li>
+    </ol>
+    <div class="warn-box info">
+      <span class="icon">💡</span>
+      <div class="content"><p>If the installer says "no devices found" — that's normal. The driver gets installed regardless. The phone will be detected when you connect it in Step 5.</p></div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 4 ==================== -->
+  <div class="step-card" id="step4">
+    <div class="step-header">
+      <div class="step-number">4</div>
+      <div>
+        <div class="step-title">Backup IMEI &amp; NV Data</div>
+        <div class="step-subtitle">⚠️ CRITICAL — without this backup, IMEI loss is permanent</div>
+      </div>
+    </div>
+    <div class="warn-box danger">
+      <span class="icon">⚠️</span>
+      <div class="content"><p><strong>If you lose your IMEI and don't have this backup, you'll have NO network, NO calls, and NO mobile data forever.</strong> Save this backup to cloud storage or an external drive.</p></div>
+    </div>
+    <ol>
+      <li><strong>Enable Developer Options:</strong> Settings → About Phone → Tap <strong>Build Number</strong> 7 times quickly</li>
+      <li><strong>Enable USB Debugging:</strong> Settings → System → Developer Options → Toggle <strong>USB Debugging</strong> ON</li>
+      <li>Connect your phone to the PC via USB cable</li>
+      <li>On your phone screen, you'll see an <strong>RSA key fingerprint prompt</strong> — tap <strong>Allow</strong> / <strong>OK</strong></li>
+      <li>On your PC, run <code>imei-backup.bat</code> (double-click it)</li>
+      <li>The script will create a file like <code>NV_Backup_20260623.bin</code></li>
+      <li><strong>Immediately save this file to Google Drive, email it to yourself, or copy it to a USB stick</strong></li>
+    </ol>
+    <div class="code-block">
+      <div class="code-header"><span>📋 Expected Output</span></div>
+      <pre><span class="dim">C:\gtneo3-unlock&gt; imei-backup.bat</span>
+[*] Reading NV data from device...
+[*] Backup saved to: NV_Backup_20260623.bin
+[<span class="ok"> OK </span>] Backup completed successfully. Keep this file safe!</pre>
+    </div>
+  </div>
+
+  <!-- ==================== STEPS 5-6 ==================== -->
+  <div class="grid-2">
+
+    <div class="step-card" id="step5">
+      <div class="step-header">
+        <div class="step-number">5</div>
+        <div>
+          <div class="step-title">Flash ENG Preloader</div>
+          <div class="step-subtitle">The critical step — bypasses bootloader locks</div>
+        </div>
+      </div>
+      <ol>
+        <li><strong>Power OFF</strong> your phone completely</li>
+        <li>Wait <strong>10 seconds</strong> after the screen goes black</li>
+        <li>On your PC, run <code>unlockbt1.bat</code></li>
+        <li>The script will display: <code>Waiting for device...</code></li>
+        <li><strong>Now connect the phone</strong> to the PC via USB cable</li>
+        <li>Do NOT press any buttons — the phone should be off</li>
+        <li>The script will detect the phone and flash the ENG preloader automatically</li>
+        <li>When complete, the phone will boot into <strong>Recovery Mode</strong></li>
+      </ol>
+      <div class="code-block">
+        <div class="code-header"><span>📋 Expected Output</span></div>
+        <pre><span class="dim">C:\gtneo3-unlock&gt; unlockbt1.bat</span>
+[*] Waiting for device...
+[+] Device detected!
+[*] Flashing ENG preloader...
+[<span class="ok"> OK </span>] Preloader flashed successfully!
+[*] Device will now boot to recovery...</pre>
+      </div>
+      <div class="warn-box warning">
+        <span class="icon">⚠️</span>
+        <div class="content"><p><strong>Script stuck on "Waiting for device"?</strong> Try these fixes in order:</p>
+          <ol style="margin-top:6px;padding-left:18px;">
+            <li>Hold <strong>Vol Up + Vol Down</strong> while connecting the USB cable</li>
+            <li>Use a <strong>USB 2.0 port</strong> (black color, not blue)</li>
+            <li>Try a <strong>different USB cable</strong> (must be data sync, not charge-only)</li>
+            <li>Reinstall PenumbraDrivers (Step 3) and reboot</li>
+            <li>Double-check Windows Defender is OFF (Step 1)</li>
+          </ol>
+        </div>
+      </div>
+      <div class="warn-box info">
+        <span class="icon">💡</span>
+        <div class="content"><p><strong>Touch not working in recovery?</strong> This happens if you have a replaced/non-original screen. Connect a <strong>USB OTG mouse</strong> via a USB-C adapter to navigate.</p></div>
+      </div>
+    </div>
+
+    <div class="step-card" id="step6">
+      <div class="step-header">
+        <div class="step-number">6</div>
+        <div>
+          <div class="step-title">Format Data in Recovery</div>
+          <div class="step-subtitle">Required after flashing the ENG preloader</div>
+        </div>
+      </div>
+      <ol>
+        <li>Your phone should now be in <strong>Realme Recovery Mode</strong> (blue/orange background)</li>
+        <li>Use <strong>Volume buttons</strong> to navigate, <strong>Power button</strong> to select</li>
+        <li>Select <strong>Format data</strong> from the menu</li>
+        <li>Type <code>yes</code> when prompted (use the on-screen keyboard)</li>
+        <li>Wait for the format to complete (takes 10–30 seconds)</li>
+        <li>Select <strong>Reboot</strong></li>
+        <li>The phone will restart and boot into <strong>Android Setup</strong></li>
+      </ol>
+      <div class="warn-box info">
+        <span class="icon">💡</span>
+        <div class="content"><p><strong>Pro tip:</strong> You don't need to sign in to Google or connect to WiFi yet. Skip through the setup wizard quickly — you'll set it up properly after the unlock is complete.</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== STEPS 7-8 ==================== -->
+  <div class="grid-2">
+
+    <div class="step-card" id="step7">
+      <div class="step-header">
+        <div class="step-number">7</div>
+        <div>
+          <div class="step-title">Enable OEM Unlocking</div>
+          <div class="step-subtitle">Must be ON for the unlock command to work</div>
+        </div>
+      </div>
+      <ol>
+        <li>Phone will boot to the Android setup screen</li>
+        <li>Skip through the setup — tap <strong>"Skip"</strong> or <strong>"Not now"</strong> for everything</li>
+        <li>Go to <strong>Settings</strong> → <strong>About Phone</strong></li>
+        <li>Tap <strong>Build Number</strong> 7 times quickly (you'll see a toast: "You are now a developer!")</li>
+        <li>Go back → <strong>Settings</strong> → <strong>System</strong> → <strong>Developer Options</strong></li>
+        <li>Find <strong>OEM Unlocking</strong> and toggle it <span class="tag green">ON</span></li>
+        <li>Also toggle <strong>USB Debugging</strong> <span class="tag green">ON</span></li>
+      </ol>
+      <div class="warn-box danger">
+        <span class="icon">🔴</span>
+        <div class="content"><p>If <strong>OEM Unlocking</strong> is greyed out or missing, your slot might still be on B, or the ENG preloader didn't flash correctly. Do NOT proceed — go back to Step 5.</p></div>
+      </div>
+    </div>
+
+    <div class="step-card" id="step8">
+      <div class="step-header">
+        <div class="step-number">8</div>
+        <div>
+          <div class="step-title">Unlock the Bootloader</div>
+          <div class="step-subtitle">This is the moment — executing the unlock</div>
+        </div>
+      </div>
+      <ol>
+        <li>On your PC, open a <strong>Command Prompt</strong> in the tool folder:<br/>
+          <span style="color:var(--text-muted);font-size:0.85rem;">(Shift + Right-click in <code>C:\gtneo3-unlock</code> → "Open command window here")</span></li>
+        <li>Run: <code>unlockbt2.bat</code></li>
+        <li>The phone will reboot to <strong>bootloader mode</strong></li>
+        <li>On the phone screen, you'll see small text on the left side — this is the unlock prompt</li>
+        <li><strong>Press Volume Up</strong> to highlight the unlock option</li>
+        <li><strong>Press Power</strong> within 5 seconds to confirm</li>
+        <li>The phone will display: <code>Unlocking bootloader...</code></li>
+        <li>It will automatically reboot after unlocking</li>
+      </ol>
+      <div class="code-block">
+        <div class="code-header"><span>📋 What You'll See</span></div>
+        <pre><span class="dim">On phone screen:</span>
+  <span class="hl">  → Unlock bootloader?</span>
+     (Volume Up to select, Power to confirm)
+
+<span class="dim">Then phone shows:</span>
+  [ Unlocking bootloader... ]
+  [ Bootloader unlocked!     ]</pre>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== STEP 9 ==================== -->
+  <div class="step-card" id="step9">
+    <div class="step-header">
+      <div class="step-number">9</div>
+      <div>
+        <div class="step-title">Verify the Unlock</div>
+        <div class="step-subtitle">Confirm everything worked correctly</div>
+      </div>
+    </div>
+    <p>After the phone reboots, open Command Prompt and run:</p>
+    <div class="code-block">
+      <div class="code-header"><span>💻 Verify Command</span><button class="copy-btn" onclick="copyCode(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+      <pre>fastboot getvar unlocked</pre>
+    </div>
+    <p>You should see:</p>
+    <div class="code-block">
+      <div class="code-header"><span>✅ Expected Output</span><button class="copy-btn" onclick="copyCode(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+      <pre><span class="ok">unlocked: yes</span></pre>
+    </div>
+    <p>Then reboot your phone:</p>
+    <div class="code-block">
+      <div class="code-header"><span>💻 Reboot Command</span><button class="copy-btn" onclick="copyCode(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+      <pre>fastboot reboot</pre>
+    </div>
+    <div class="warn-box success" style="margin-top:16px;">
+      <span class="icon">🎉</span>
+      <div class="content"><p><strong>Bootloader successfully unlocked!</strong> Your phone is now free for custom ROMs, rooting, and modifications.</p></div>
+    </div>
+  </div>
+
+  <!-- ==================== POST-UNLOCK ==================== -->
+  <div class="card">
+    <h2 class="section-title"><span class="icon">🚀</span> What to Do After Unlocking</h2>
+    <div class="grid-2">
+      <div style="background:rgba(56,189,248,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:var(--radius-sm);padding:24px;">
+        <h3 style="font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:8px;">📱 Stay on Stock + Root</h3>
+        <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:10px;">Keep the original Realme firmware but gain root access with Magisk.</p>
+        <ul style="font-size:0.9rem;padding-left:18px;">
+          <li style="margin-bottom:4px;">Patch <code>boot.img</code> with <strong>Magisk</strong></li>
+          <li style="margin-bottom:4px;">Keep stock recovery (no TWRP needed)</li>
+          <li style="margin-bottom:4px;">OTA updates work (re-patch boot.img after each)</li>
+        </ul>
+        <p style="margin-top:10px;"><a href="#rooting" style="color:var(--accent);font-weight:600;">→ Jump to Rooting Guide</a></p>
+      </div>
+      <div style="background:rgba(167,139,250,0.03);border:1px solid rgba(167,139,250,0.08);border-radius:var(--radius-sm);padding:24px;">
+        <h3 style="font-size:1.1rem;font-weight:700;color:#a78bfa;margin-bottom:8px;">🤖 Flash Custom ROMs</h3>
+        <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:10px;">Install a custom Android ROM for a cleaner, faster experience.</p>
+        <ul style="font-size:0.9rem;padding-left:18px;">
+          <li style="margin-bottom:4px;">LineageOS 21, EvolutionX, crDroid, Derpfest</li>
+          <li style="margin-bottom:4px;">⚠️ <strong>Delete <code>preloader_raw.img</code></strong> from ROM ZIP before flashing</li>
+          <li style="margin-bottom:4px;">Flash via <code>fastboot flash</code> commands</li>
+        </ul>
+        <p style="margin-top:10px;"><a href="#custom-roms" style="color:var(--accent);font-weight:600;">→ Jump to Custom ROMs</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ROOTING ==================== -->
+  <div class="step-card" id="rooting">
+    <div class="step-header">
+      <div class="step-number" style="background:linear-gradient(135deg,#4ade80,#22c55e);">R</div>
+      <div>
+        <div class="step-title">Rooting with Magisk</div>
+        <div class="step-subtitle">Based on <a href="https://xdaforums.com/t/guideline-root-gt-neo-3-80w-rmx3561-using-magisk.4602213/" style="color:var(--accent)">XDA Root Guide</a></div>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-sm);padding:24px 28px;margin-bottom:24px;">
+      <h3 style="font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:4px;">Step 1: Get boot.img</h3>
+      <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:14px;">You need the stock boot image from your current firmware to patch with Magisk. Choose either option:</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch;">
+        <div style="background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);padding:20px 22px;">
+          <div style="font-weight:700;color:var(--text);font-size:1rem;margin-bottom:8px;">🅰️ Extract from OTA</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 10px;">Install payload_dumper and extract from your firmware package:</p>
+          <div class="code-block" style="margin:0;">
+            <div class="code-header"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+            <pre>pip install payload_dumper
+payload_dumper.py ota.zip</pre>
+          </div>
+        </div>
+        <div style="background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);padding:20px 22px;">
+          <div style="font-weight:700;color:var(--text);font-size:1rem;margin-bottom:8px;">🅱️ Pull from Phone</div>
+          <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 10px;">Extract boot.img directly from your device via ADB:</p>
+          <div class="code-block" style="margin:0;">
+            <div class="code-header"><span>ADB</span><button class="copy-btn" onclick="copyCode(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+            <pre>adb shell
+dd if=/dev/block/bootdevice/by-name/boot of=/sdcard/boot.img
+adb pull /sdcard/boot.img</pre>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;padding:14px 18px;background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.08);border-radius:var(--radius-sm);">
+        <p style="font-size:0.9rem;color:var(--text-secondary);margin:0;display:flex;align-items:center;gap:8px;">
+          <span>📌</span>
+          <span>Your firmware OTA URL: </span>
+          <code style="background:rgba(0,0,0,0.3);padding:4px 10px;border-radius:6px;font-size:0.75rem;word-break:break-all;flex:1;">https://gauss-opexcostmanual-eu.allawnofs.com/remove-08a77f8628e6aa653cb262be7656d279/component-ota/25/03/25/d0d6022e9eeb44c7b5b91bc343f93fa0.zip</code>
+        </p>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-sm);padding:24px 28px;margin-bottom:24px;">
+      <h3 style="font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:4px;">Step 2: Patch with Magisk App</h3>
+      <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:14px;">Magisk modifies the boot image to grant root access. Follow these steps on your phone:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <ol style="font-size:1rem;padding-left:22px;margin:0;">
+            <li style="margin-bottom:8px;">Transfer <code style="font-size:0.9rem;">boot.img</code> to your phone (USB or cloud)</li>
+            <li style="margin-bottom:8px;">Download the latest <strong><a href="https://github.com/topjohnwu/Magisk/releases/latest" style="color:var(--accent)">Magisk APK</a></strong></li>
+            <li style="margin-bottom:8px;">Install the APK on your phone</li>
+            <li style="margin-bottom:8px;">Open <strong>Magisk</strong> app → tap <strong>Install</strong> next to "Magisk"</li>
+            <li style="margin-bottom:8px;">Tap <strong>"Select and Patch a File"</strong></li>
+            <li style="margin-bottom:8px;">Navigate to and select your <code style="font-size:0.9rem;">boot.img</code></li>
+            <li style="margin-bottom:8px;">Wait for patching to finish (5–10 seconds)</li>
+            <li style="margin-bottom:0;">Transfer <code style="font-size:0.9rem;">magisk_patched-*.img</code> back to your PC</li>
+          </ol>
+        </div>
+        <div style="background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);padding:24px;display:flex;flex-direction:column;justify-content:center;">
+          <div style="text-align:center;margin-bottom:12px;">
+            <span style="font-size:3rem;">🛡️</span>
+          </div>
+          <p style="font-size:0.95rem;color:var(--text-secondary);text-align:center;margin:0;">The patched file is usually named<br/>
+            <code style="font-size:1rem;">magisk_patched-xxxxxxxx.img</code></p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-sm);padding:24px 28px;">
+      <h3 style="font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:4px;">Step 3: Flash Patched Boot &amp; Verify</h3>
+      <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:14px;">Boot your phone into <strong>fastboot mode</strong> (Power + Vol Down) and connect to PC:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;">
+        <div class="code-block" style="margin:0;">
+          <div class="code-header"><span>Fastboot</span><button class="copy-btn" onclick="copyCode(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+          <pre>fastboot flash boot magisk_patched-*.img
+fastboot reboot</pre>
+        </div>
+        <div>
+          <p style="font-size:1rem;color:var(--text-secondary);margin-bottom:8px;">After reboot, open the <strong>Magisk app</strong>. You should see:</p>
+          <div class="warn-box success" style="margin:0;">
+            <span class="icon">✅</span>
+            <div class="content"><p style="font-size:1rem;"><strong>Installed: Yes</strong> (with version number)</p></div>
+          </div>
+          <p style="font-size:0.88rem;color:var(--text-muted);margin-top:8px;">If it doesn't show "Installed: Yes", re-check the filename and try again.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== FIRMWARE + ROMS ==================== -->
+  <div class="grid-2">
+
+    <div class="step-card">
+      <h2 class="section-title"><span class="icon">📦</span> Stock Firmware OTAs</h2>
+      <p style="font-size:0.9rem;color:var(--text-secondary);">Full OTA table from <a href="https://docs.google.com/document/d/1zzIi3n2aXDRSGKynhFYw5_uUAlCFZ5aVYCzIfk0Z-BU" style="color:var(--accent)">Google Doc</a> — all versions and regions.</p>
+      <h3>Your version: RMX3561_14.0.0.932(EX01)</h3>
+      <table>
+        <thead><tr><th>Version</th><th>Region</th><th>Download</th></tr></thead>
+        <tbody>
+          <tr><td>14.0.0.932</td><td><span class="tag blue">IN</span></td><td><a href="https://gauss-opexcostmanual-eu.allawnofs.com/remove-08a77f8628e6aa653cb262be7656d279/component-ota/25/03/25/d0d6022e9eeb44c7b5b91bc343f93fa0.zip">Download</a></td></tr>
+          <tr><td>14.0.0.932</td><td><span class="tag blue">EUEX</span></td><td><a href="https://gauss-opexcostmanual-sg.allawnofs.com/remove-1c475779b2ce1f5800cd3fad7838412c/component-ota/25/03/25/9bb53915f513446981248c12464a45c8.zip">Download</a></td></tr>
+          <tr><td>14.0.0.932</td><td><span class="tag blue">ID</span></td><td><a href="https://gauss-opexcostmanual-eu.allawnofs.com/remove-efc3342f8627f289ac315bccb4c5480b/component-ota/25/03/25/acbf4d5769ab4ea1a1efdb12c8fad84e.zip">Download</a></td></tr>
+          <tr><td>14.0.0.2200</td><td><span class="tag blue">IN</span></td><td><a href="https://gauss-opexcostmanual-eu.allawnofs.com/remove-1738def7eaa23bfd04c1ff80112d950d/component-ota/25/10/18/483a10e9a9e54c02805c8fc5605730ff.zip">Download</a></td></tr>
+          <tr><td>14.0.0.2200</td><td><span class="tag blue">EUEX</span></td><td><a href="https://gauss-opexcostmanual-sg.allawnofs.com/remove-2c9139e4f11b9763ce032e02e1b83f25/component-ota/25/10/18/78a1276f0dad46c8acd42c93353b60d6.zip">Download</a></td></tr>
+          <tr><td>14.0.0.2200</td><td><span class="tag blue">ID</span></td><td><a href="https://gauss-opexcostmanual-eu.allawnofs.com/remove-5604b2f5f656e3ad8fe2f3458e219171/component-ota/25/10/18/0e5640eaf43a49e4ac244611126c05b8.zip">Download</a></td></tr>
+        </tbody>
+      </table>
+      <h3>Rollback Packages</h3>
+      <table>
+        <thead><tr><th>Target</th><th>Download</th></tr></thead>
+        <tbody>
+          <tr><td>Android 13 (RUI 4.0) IN</td><td><a href="https://download.c.realme.com/flash/Rollbackpack/realme_GT_Neo3/UI4.0/RMX3561_11_C_OTA_1240_all_ws109R_00011011_IN.zip">Download</a></td></tr>
+          <tr><td>Android 12 (RUI 3.0) IN</td><td><a href="https://download.c.realme.com/flash/Rollbackpack/realme_GT_Neo3/RMX3561_11_A_OTA_0150_all_96e7d9_IN.zip">Download</a></td></tr>
+          <tr><td>Android 12 (RUI 3.0) CN</td><td><a href="https://rbp01.realme.net/GT_Neo3/UI4.0/RMX3560_11_C_OTA_1240_all_CDSeWu_CN.zip">Download</a></td></tr>
+        </tbody>
+      </table>
+      <div class="warn-box info">
+        <span class="icon">ℹ️</span>
+        <div class="content"><p><strong>Getting a 403 error?</strong> Realme's Gauss servers block browser downloads. Use <strong>1DM</strong> app from Play Store on your phone — it handles the required headers.</p></div>
+      </div>
+    </div>
+
+    <div class="step-card" id="custom-roms">
+      <h2 class="section-title"><span class="icon">🤖</span> Custom ROMs</h2>
+      <p style="font-size:0.9rem;color:var(--text-secondary);">Source: <a href="https://sourceforge.net/projects/realme-gt-neo3/" style="color:var(--accent)">SourceForge — realme-gt-neo3</a></p>
+      <p style="font-size:0.9rem;color:var(--text-secondary);">Codename: <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:4px;">lisaa</code> — same ROMs for RMX3560 and RMX3561</p>
+      <div class="warn-box danger">
+        <span class="icon">⚠️</span>
+        <div class="content"><p><strong>Never flash <code>preloader_raw.img</code> from any ROM ZIP.</strong> Delete it from the ZIP before extracting. This is the #1 cause of hardbricks on this device.</p></div>
+      </div>
+      <table>
+        <thead><tr><th>ROM</th><th>Android</th><th>Download</th></tr></thead>
+        <tbody>
+          <tr><td>LineageOS 21</td><td>14</td><td><a href="https://sourceforge.net/projects/realme-gt-neo3/files/LineageOs/lineage-21.0-20241207-UNOFFICIAL-lisaa.zip/download">Download</a></td></tr>
+          <tr><td>EvolutionX 14.0 v9.6</td><td>14</td><td><a href="https://sourceforge.net/projects/realme-gt-neo3/files/Evox/EvolutionX-14.0-20241214-lisaa-v9.6-Unofficial.zip/download">Download</a></td></tr>
+          <tr><td>crDroid 14.0 v10.10</td><td>14</td><td><a href="https://sourceforge.net/projects/realme-gt-neo3/files/Crdroid/">SourceForge</a></td></tr>
+          <tr><td>Derpfest 14</td><td>14</td><td><a href="https://sourceforge.net/projects/realme-gt-neo3/files/Derpfest/">SourceForge</a></td></tr>
+          <tr><td>LineageOS 22</td><td>15</td><td><a href="https://sourceforge.net/projects/realme-gt-neo3/files/Los22/">SourceForge (WIP)</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ==================== TROUBLESHOOTING ==================== -->
+  <div class="card full-width">
+    <h2 class="section-title"><span class="icon">🔧</span> Troubleshooting</h2>
+    <div class="trouble-grid">
+      <div class="trouble-item">
+        <h3>"Waiting for device" — script can't detect phone</h3>
+        <div class="cause">Windows Defender blocking drivers / wrong USB port / bad cable / wrong phone mode</div>
+        <ul>
+          <li>✅ Disable Windows Defender (Real-time + Core Isolation), then reboot</li>
+          <li>✅ Use a <strong>USB 2.0 port</strong> (black, not blue)</li>
+          <li>✅ Try a <strong>different data cable</strong> (not charge-only)</li>
+          <li>✅ Hold <strong>Vol Up + Vol Down</strong> while connecting</li>
+          <li>✅ Reinstall PenumbraDrivers → reboot PC</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>Recovery boots but touch doesn't work</h3>
+        <div class="cause">This happens if you have a replaced or non-original screen</div>
+        <ul>
+          <li>✅ Connect a <strong>USB OTG mouse</strong> via USB-C adapter</li>
+          <li>✅ Navigate to "Format data" using the mouse, then reboot</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>"flashing unlock is not allowed"</h3>
+        <div class="cause">OEM Unlocking is disabled in Developer Options</div>
+        <ul>
+          <li>✅ Boot to system normally (not bootloader)</li>
+          <li>✅ Settings → Developer Options → Enable <strong>OEM Unlocking</strong></li>
+          <li>✅ <code>adb reboot bootloader</code> then <code>fastboot flashing unlock</code></li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>Phone stuck at logo after unlock (won't boot)</h3>
+        <div class="cause">Normal after unlock — data needs to be formatted</div>
+        <ul>
+          <li>✅ Boot to Recovery: Power off → hold <strong>Power + Volume Down</strong></li>
+          <li>✅ Select <strong>Format data</strong> → type <code>yes</code> → reboot</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>"No valid slot to boot"</h3>
+        <div class="cause">Boot partition pointer is corrupted or on wrong slot</div>
+        <ul>
+          <li>✅ <code>fastboot --set-active=a</code> then <code>fastboot reboot</code></li>
+          <li>✅ Boot to recovery → Format data</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>OTA download gives 403 error</h3>
+        <div class="cause">Realme's Gauss servers block direct browser downloads</div>
+        <ul>
+          <li>✅ Install <strong>1DM</strong> (Download Manager) from Play Store</li>
+          <li>✅ Copy the OTA link into 1DM — it handles the required headers</li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>Hard brick — phone completely dead, no response</h3>
+        <div class="cause">Flashed <code>preloader_raw.img</code>, cross-flashed wrong firmware, or relocked bootloader on non-stock</div>
+        <ul>
+          <li>1️⃣ Hold <strong>Vol Up + Vol Down</strong> → connect USB → check Device Manager for "MediaTek USB Port"</li>
+          <li>2️⃣ If detected → use <strong>SP Flash Tool</strong> or <strong>MTKClient</strong> to restore stock firmware</li>
+          <li>3️⃣ If not detected → needs <strong>Oplus Auth Tool</strong> (service center level)</li>
+          <li>4️⃣ Get help: <a href="https://t.me/RealmeGTNeo3discussion" style="color:var(--accent)">Telegram Support Group</a></li>
+        </ul>
+      </div>
+      <div class="trouble-item">
+        <h3>Lost fastboot mode after successful unlock</h3>
+        <div class="cause">Rare — fastboot driver issue or boot partition issue</div>
+        <ul>
+          <li>✅ Re-run the unlock procedure from Step 5 (flash ENG preloader again)</li>
+          <li>✅ Or restore backed-up preloader via MTKClient</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== RESOURCES ==================== -->
+  <div class="card full-width" style="margin-bottom:48px;">
+    <h2 class="section-title"><span class="icon">📎</span> Resources</h2>
+    <div class="grid-3">
+      <div>
+        <h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:8px;">Guides</h3>
+        <table>
+          <tbody>
+            <tr><td><a href="https://thundergod-thor.github.io/Gtneo3-bootloader_unlock/">Thundergod-thor</a></td></tr>
+            <tr><td><a href="https://ninjahunter1357.github.io/gtneo3-docs/">ninjahunter1357 (detailed docs)</a></td></tr>
+            <tr><td><a href="https://github.com/bkerler/mtkclient">MTKClient GitHub</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:8px;">XDA Forums</h3>
+        <table>
+          <tbody>
+            <tr><td><a href="https://xdaforums.com/f/realme-gt-neo-3.12599/">GT Neo 3 Forum</a></td></tr>
+            <tr><td><a href="https://xdaforums.com/t/guideline-root-gt-neo-3-80w-rmx3561-using-magisk.4602213/">Root Guide</a></td></tr>
+            <tr><td><a href="https://xdaforums.com/t/unofficial-bootloader-unlocking-for-realme-gt-neo-3.4780491/">Unlock Discussion</a></td></tr>
+            <tr><td><a href="https://xdaforums.com/t/full-ota-package.4714559/">OTA Thread</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:8px;">Telegram &amp; Downloads</h3>
+        <table>
+          <tbody>
+            <tr><td><a href="https://t.me/RealmeGTNeo3discussion">Support &amp; Discussion</a></td></tr>
+            <tr><td><a href="https://t.me/RealmGTNeo3_Official">Official Group</a></td></tr>
+            <tr><td><a href="https://sourceforge.net/projects/realme-gt-neo3/">SourceForge ROMs</a></td></tr>
+            <tr><td><a href="https://github.com/topjohnwu/Magisk/releases/latest">Magisk Latest</a></td></tr>
+            <tr><td><a href="https://support.halabtech.com/">HalabTech Stock Firmware</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">
+      <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.8;">
+        <strong style="color:var(--text-secondary);">Unofficial tool — use at your own risk.</strong><br/>
+        Original method by <strong>Thundergod_thor</strong> &middot; Penumbra drivers by <strong>Shomy</strong><br/>
+          — @anandthetrickortreat (guidance) &middot; @Synguyen00, @NorvalBlast, @Santhosh (testing &amp; feedback)<br/>
+        Research conducted with <strong>Camofox Browser</strong>, verified across XDA, Google, GitHub, SourceForge, Telegram, and Realme OTA servers.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.textContent.replace(/<[^>]+>/g, '').trim();
+  const orig = btn.innerHTML;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>
